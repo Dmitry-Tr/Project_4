@@ -1,0 +1,15 @@
+SELECT distinct f.flight_id,
+    sum(t_f.amount) as income,
+    (date_part('hour', f.scheduled_arrival - f.scheduled_departure) +
+    date_part('minute', f.scheduled_arrival - f.scheduled_departure)/60) as airtime,
+    f.departure_airport,
+    f.arrival_airport,
+    count(t_f.amount) as passengers,
+    ar.model
+FROM dst_project.flights as f 
+    left join dst_project.ticket_flights as t_f on t_f.flight_id = f.flight_id
+        left join dst_project.aircrafts as ar on ar.aircraft_code = f.aircraft_code    
+WHERE departure_airport = 'AAQ'
+  AND (date_trunc('month', scheduled_departure) in ('2017-01-01','2017-02-01', '2017-12-01'))
+  AND status not in ('Cancelled')
+GROUP BY f.flight_id, ar.model
